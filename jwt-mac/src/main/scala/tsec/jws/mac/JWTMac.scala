@@ -6,14 +6,12 @@ import tsec.jws.{JWSJWT, JWSSerializer, JWSSignature}
 import tsec.jwt.algorithms.JWTMacAlgo
 import tsec.mac.imports.{MacErrorM, MacSigningKey}
 import cats.syntax.functor._
-import io.circe.Decoder
-import io.circe.parser.decode
-import tsec.jwt.JWTClaims
+import tsec.jwt.{JWTClaims, jwtB64URLEncoder}
 
 sealed abstract case class JWTMac[A](header: JWSMacHeader[A], body: JWTClaims, signature: JWSSignature[A])
     extends JWSJWT[A] {
   def toEncodedString(implicit hs: JWSSerializer[JWSMacHeader[A]]): String =
-    hs.toB64URL(header) + "." + JWTClaims.toB64URL(body) + "." + signature.toB64UrlString
+    hs.toB64URL(header) + "." + JWTClaims.toB64URL(body) + "." + jwtB64URLEncoder.encode(signature)
 
   def id = body.jwtId
 
